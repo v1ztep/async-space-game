@@ -20,22 +20,26 @@ def draw(canvas):
         if len(coroutines_blink) == 0:
             break
         canvas.refresh()
-        time.sleep(1)
+        time.sleep(0.1)
 
 
 async def blink(canvas, row, column, symbol='*'):
     while True:
         canvas.addstr(row, column, symbol, curses.A_DIM)
-        await asyncio.sleep(0)
+        for star in range(20):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        await asyncio.sleep(0)
+        for star in range(3):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol, curses.A_BOLD)
-        await asyncio.sleep(0)
+        for star in range(5):
+            await asyncio.sleep(0)
 
         canvas.addstr(row, column, symbol)
-        await asyncio.sleep(0)
+        for star in range(3):
+            await asyncio.sleep(0)
 
 
 def show_symbol(canvas, row, column, symbol, sleep_time, mode=curses.A_NORMAL):
