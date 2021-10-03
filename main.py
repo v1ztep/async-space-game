@@ -12,30 +12,34 @@ def draw(canvas):
     columns = canvas.getmaxyx()[1] - 2
     symbols = ('+', '*', '.', ':')
 
-    coroutines_blink = [
+    coroutines = [
         blink(
             canvas, random.randint(1, rows),
             random.randint(1, columns), random.choice(symbols)
         ) for _ in range(200)
     ]
+    coroutines.append(fire(
+        canvas, rows/2, columns/2,
+        rows_speed=-0.3, columns_speed=0
+    ))
     while True:
-        for coroutine in coroutines_blink.copy():
+        for coroutine in coroutines.copy():
             try:
                 coroutine.send(None)
             except StopIteration:
-                coroutines_blink.remove(coroutine)
-        if len(coroutines_blink) == 0:
+                coroutines.remove(coroutine)
+        if len(coroutines) == 0:
             break
         canvas.refresh()
         time.sleep(0.1)
 
 
 async def blink(canvas, row, column, symbol='*'):
-    min_time_delay = 0
-    max_time_delay = 20
+    min_time_delay = 5
+    max_time_delay = 30
     while True:
         blink_delay = random.randint(min_time_delay, max_time_delay)
-        for star in range(20+blink_delay):
+        for star in range(blink_delay):
             canvas.addstr(row, column, symbol, curses.A_DIM)
             await asyncio.sleep(0)
 
@@ -50,6 +54,37 @@ async def blink(canvas, row, column, symbol='*'):
         for star in range(3):
             canvas.addstr(row, column, symbol)
             await asyncio.sleep(0)
+
+
+async def fire(
+        canvas, start_row, start_column,
+        rows_speed=-0.3, columns_speed=0
+):
+    row, column = start_row, start_column
+
+    canvas.addstr(round(row), round(column), '*')
+    await asyncio.sleep(0)
+
+    canvas.addstr(round(row), round(column), 'O')
+    await asyncio.sleep(0)
+    canvas.addstr(round(row), round(column), ' ')
+
+    row += rows_speed
+    column += columns_speed
+
+    symbol = '-' if columns_speed else '|'
+
+    rows, columns = canvas.getmaxyx()
+    max_row, max_column = rows - 1, columns - 1
+
+    curses.beep()
+
+    while 1 < row < max_row and 1 < column < max_column:
+        canvas.addstr(round(row), round(column), symbol)
+        await asyncio.sleep(0)
+        canvas.addstr(round(row), round(column), ' ')
+        row += rows_speed
+        column += columns_speed
 
 
 def main():
