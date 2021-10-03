@@ -16,7 +16,7 @@ def draw(canvas):
         blink(
             canvas, random.randint(1, rows),
             random.randint(1, columns), random.choice(symbols)
-        ) for _ in range(150)
+        ) for _ in range(200)
     ]
     while True:
         for coroutine in coroutines_blink.copy():
@@ -31,21 +31,24 @@ def draw(canvas):
 
 
 async def blink(canvas, row, column, symbol='*'):
+    min_time_delay = 0
+    max_time_delay = 20
     while True:
-        canvas.addstr(row, column, symbol, curses.A_DIM)
-        for star in range(20):
+        blink_delay = random.randint(min_time_delay, max_time_delay)
+        for star in range(20+blink_delay):
+            canvas.addstr(row, column, symbol, curses.A_DIM)
             await asyncio.sleep(0)
 
-        canvas.addstr(row, column, symbol)
         for star in range(3):
+            canvas.addstr(row, column, symbol)
             await asyncio.sleep(0)
 
-        canvas.addstr(row, column, symbol, curses.A_BOLD)
         for star in range(5):
+            canvas.addstr(row, column, symbol, curses.A_BOLD)
             await asyncio.sleep(0)
 
-        canvas.addstr(row, column, symbol)
         for star in range(3):
+            canvas.addstr(row, column, symbol)
             await asyncio.sleep(0)
 
 
