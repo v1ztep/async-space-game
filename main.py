@@ -88,6 +88,12 @@ async def fire(
 
 
 def main():
+    with open("frames/rocket_frame_1.txt", encoding="utf-8") as rocket_frame_1:
+        rocket_1 = rocket_frame_1.read()
+
+    with open("frames/rocket_frame_2.txt", encoding="utf-8") as rocket_frame_2:
+        rocket_2 = rocket_frame_2.read()
+
     curses.update_lines_cols()
     curses.wrapper(draw)
 
