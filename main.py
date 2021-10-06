@@ -178,10 +178,10 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 
 
 if __name__ == '__main__':
-    with open("frames/rocket_frame_1.txt", encoding="utf-8") as frame_1:
+    with open('frames/rocket_frame_1.txt', encoding='utf-8') as frame_1:
         rocket_frame_1 = frame_1.read()
 
-    with open("frames/rocket_frame_2.txt", encoding="utf-8") as frame_2:
+    with open('frames/rocket_frame_2.txt', encoding='utf-8') as frame_2:
         rocket_frame_2 = frame_2.read()
 
     curses.update_lines_cols()
