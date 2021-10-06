@@ -97,6 +97,7 @@ async def fire(
 
 
 async def animate_spaceship(canvas, rows, columns):
+    rocket_speed = 5
     rocket_frames = (rocket_frame_1, rocket_frame_2)
     start_row, start_column = rows / 2, (columns / 2) - 2
     for frame in cycle(rocket_frames):
@@ -107,8 +108,26 @@ async def animate_spaceship(canvas, rows, columns):
         )
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
-        start_row += rows_direction
-        start_column += columns_direction
+        start_row += (rows_direction * rocket_speed)
+        start_column += (columns_direction * rocket_speed)
+
+        frame_size_rows, frame_size_columns = get_frame_size(frame)
+        if start_row < 1:
+            start_row = 1
+        elif start_row > rows - frame_size_rows:
+            start_row = rows - frame_size_rows + 1
+
+        if start_column < 1:
+            start_column = 1
+        elif start_column > columns - frame_size_columns:
+            start_column = columns - frame_size_columns + 1
+
+
+def get_frame_size(text):
+    lines = text.splitlines()
+    rows = len(lines)
+    columns = max([len(line) for line in lines])
+    return rows, columns
 
 
 def read_controls(canvas):
