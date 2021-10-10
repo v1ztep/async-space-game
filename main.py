@@ -3,6 +3,7 @@ import curses
 import random
 import time
 from itertools import cycle
+from pathlib import Path
 
 SPACE_KEY_CODE = 32
 LEFT_KEY_CODE = 260
@@ -29,8 +30,12 @@ def draw(canvas):
     coroutines.append(animate_spaceship(canvas, rows, columns))
     coroutines.append(fire(
         canvas, rows/2, columns/2,
-        rows_speed=-0.3, columns_speed=0
+        rows_speed=-0.5, columns_speed=0
     ))
+    coroutines.append(
+        fly_garbage(canvas, column=10, garbage_frame=garbage_frames[0])
+    )
+
     while True:
         for coroutine in coroutines.copy():
             try:
@@ -67,7 +72,7 @@ async def blink(canvas, row, column, symbol='*'):
 
 async def fire(
         canvas, start_row, start_column,
-        rows_speed=-0.3, columns_speed=0
+        rows_speed=-0.5, columns_speed=0
 ):
     row, column = start_row, start_column
 
@@ -121,6 +126,22 @@ async def animate_spaceship(canvas, rows, columns):
             start_column = 1
         elif start_column > columns - frame_size_columns:
             start_column = columns - frame_size_columns + 1
+
+
+async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
+    rows_number, columns_number = canvas.getmaxyx()
+
+    column = max(column, 0)
+    column = min(column, columns_number - 1)
+    frame_size_rows, frame_size_columns = get_frame_size(garbage_frame)
+
+    row = 1
+
+    while row < rows_number - frame_size_rows - 1:
+        draw_frame(canvas, row, column, garbage_frame)
+        await asyncio.sleep(0)
+        draw_frame(canvas, row, column, garbage_frame, negative=True)
+        row += speed
 
 
 def get_frame_size(text):
@@ -180,9 +201,14 @@ def draw_frame(canvas, start_row, start_column, text, negative=False):
 if __name__ == '__main__':
     with open('frames/rocket_frame_1.txt', encoding='utf-8') as frame_1:
         rocket_frame_1 = frame_1.read()
-
     with open('frames/rocket_frame_2.txt', encoding='utf-8') as frame_2:
         rocket_frame_2 = frame_2.read()
+
+    garbage_frames = []
+    frames_garbage_paths = list(Path('frames/trash').glob('*.txt'))
+    for path in frames_garbage_paths:
+        with open(path, encoding='utf-8') as trash_frame:
+            garbage_frames.append(trash_frame.read())
 
     curses.update_lines_cols()
     curses.wrapper(draw)
