@@ -133,15 +133,15 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
 
     column = max(column, 0)
     column = min(column, columns_number - 1)
-    frame_size_rows, frame_size_columns = get_frame_size(garbage_frame)
 
     row = 1
 
-    while row < rows_number - frame_size_rows - 1:
+    while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
+        canvas.border()
 
 
 def get_frame_size(text):
