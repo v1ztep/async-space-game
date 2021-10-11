@@ -205,7 +205,7 @@ if __name__ == '__main__':
         rocket_frame_2 = frame_2.read()
 
     garbage_frames = []
-    frames_garbage_paths = list(Path('frames/trash').glob('*.txt'))
+    frames_garbage_paths = Path('frames/trash').glob('*.txt')
     for path in frames_garbage_paths:
         with open(path, encoding='utf-8') as trash_frame:
             garbage_frames.append(trash_frame.read())
