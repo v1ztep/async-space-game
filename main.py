@@ -11,6 +11,8 @@ RIGHT_KEY_CODE = 261
 UP_KEY_CODE = 259
 DOWN_KEY_CODE = 258
 
+COROUTINES = []
+
 
 def draw(canvas):
     curses.curs_set(False)
@@ -21,28 +23,29 @@ def draw(canvas):
     columns = canvas.getmaxyx()[1] - 2
     symbols = ('+', '*', '.', ':')
 
-    coroutines = [
+    global COROUTINES
+    COROUTINES.extend([
         blink(
             canvas, random.randint(1, rows),
             random.randint(1, columns), random.choice(symbols)
         ) for _ in range(200)
-    ]
-    coroutines.append(animate_spaceship(canvas, rows, columns))
-    coroutines.append(fire(
+    ])
+    COROUTINES.append(animate_spaceship(canvas, rows, columns))
+    COROUTINES.append(fire(
         canvas, rows/2, columns/2,
         rows_speed=-0.5, columns_speed=0
     ))
-    coroutines.append(
+    COROUTINES.append(
         fly_garbage(canvas, column=10, garbage_frame=garbage_frames[0])
     )
 
     while True:
-        for coroutine in coroutines.copy():
+        for coroutine in COROUTINES.copy():
             try:
                 coroutine.send(None)
             except StopIteration:
-                coroutines.remove(coroutine)
-        if len(coroutines) == 0:
+                COROUTINES.remove(coroutine)
+        if len(COROUTINES) == 0:
             break
         canvas.refresh()
         time.sleep(0.1)
@@ -134,7 +137,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     column = max(column, 0)
     column = min(column, columns_number - 1)
 
-    row = 1
+    row = 0
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
@@ -142,6 +145,10 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         canvas.border()
+
+
+async def fill_orbit_with_garbage():
+    pass
 
 
 def get_frame_size(text):
