@@ -15,6 +15,7 @@ COROUTINES = []
 
 
 def draw(canvas):
+    garbage_delay = 5
     curses.curs_set(False)
     canvas.border()
     canvas.nodelay(True)
@@ -36,7 +37,7 @@ def draw(canvas):
         rows_speed=-0.5, columns_speed=0
     ))
     COROUTINES.append(
-        fly_garbage(canvas, column=10, garbage_frame=garbage_frames[0])
+        fill_orbit_with_garbage(canvas, columns, garbage_delay)
     )
 
     while True:
@@ -131,6 +132,16 @@ async def animate_spaceship(canvas, rows, columns):
             start_column = columns - frame_size_columns + 1
 
 
+async def fill_orbit_with_garbage(canvas, columns, delay):
+    while True:
+        COROUTINES.append(fly_garbage(
+            canvas, column=random.randint(0, columns),
+            garbage_frame=random.choice(garbage_frames)
+        ))
+        for _ in range(delay):
+            await asyncio.sleep(0)
+
+
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     rows_number, columns_number = canvas.getmaxyx()
 
@@ -145,10 +156,6 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         canvas.border()
-
-
-async def fill_orbit_with_garbage():
-    pass
 
 
 def get_frame_size(text):
