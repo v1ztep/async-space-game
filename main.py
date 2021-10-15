@@ -108,40 +108,25 @@ async def animate_spaceship(canvas, rows, columns):
     start_row, start_column = rows / 2, (columns / 2) - 2
     for frame in cycle(rocket_frames):
         draw_frame(canvas, start_row, start_column, frame)
-        start_row, start_column = take_control(
-            canvas, start_row, start_column,
-            rocket_speed, frame, rows, columns
-        )
         await asyncio.sleep(0)
         draw_frame(
             canvas, start_row, start_column, frame, negative=True
         )
-        start_row, start_column = take_control(
-            canvas, start_row, start_column,
-            rocket_speed, frame, rows, columns
-        )
 
+        rows_direction, columns_direction, space_pressed = read_controls(canvas)
+        start_row += (rows_direction * rocket_speed)
+        start_column += (columns_direction * rocket_speed)
 
-def take_control(
-        canvas, start_row, start_column,
-        rocket_speed, frame, rows, columns
-):
-    rows_direction, columns_direction, space_pressed = read_controls(canvas)
-    start_row += (rows_direction * rocket_speed)
-    start_column += (columns_direction * rocket_speed)
+        frame_size_rows, frame_size_columns = get_frame_size(frame)
+        if start_row < 1:
+            start_row = 1
+        elif start_row > rows - frame_size_rows:
+            start_row = rows - frame_size_rows + 1
 
-    frame_size_rows, frame_size_columns = get_frame_size(frame)
-    if start_row < 1:
-        start_row = 1
-    elif start_row > rows - frame_size_rows:
-        start_row = rows - frame_size_rows + 1
-
-    if start_column < 1:
-        start_column = 1
-    elif start_column > columns - frame_size_columns:
-        start_column = columns - frame_size_columns + 1
-
-    return start_row, start_column
+        if start_column < 1:
+            start_column = 1
+        elif start_column > columns - frame_size_columns:
+            start_column = columns - frame_size_columns + 1
 
 
 async def fill_orbit_with_garbage(canvas, columns, delay):
