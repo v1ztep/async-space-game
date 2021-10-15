@@ -15,7 +15,7 @@ COROUTINES = []
 
 
 def draw(canvas):
-    garbage_delay = 5
+    garbage_delay = 7
     curses.curs_set(False)
     canvas.border()
     canvas.nodelay(True)
@@ -57,21 +57,18 @@ async def blink(canvas, row, column, symbol='*'):
     max_time_delay = 30
     while True:
         blink_delay = random.randint(min_time_delay, max_time_delay)
-        for star in range(blink_delay):
-            canvas.addstr(row, column, symbol, curses.A_DIM)
-            await asyncio.sleep(0)
 
-        for star in range(3):
-            canvas.addstr(row, column, symbol)
-            await asyncio.sleep(0)
+        canvas.addstr(row, column, symbol, curses.A_DIM)
+        await sleep(tics=blink_delay)
 
-        for star in range(5):
-            canvas.addstr(row, column, symbol, curses.A_BOLD)
-            await asyncio.sleep(0)
+        canvas.addstr(row, column, symbol)
+        await sleep(tics=3)
 
-        for star in range(3):
-            canvas.addstr(row, column, symbol)
-            await asyncio.sleep(0)
+        canvas.addstr(row, column, symbol, curses.A_BOLD)
+        await sleep(tics=5)
+
+        canvas.addstr(row, column, symbol)
+        await sleep(tics=3)
 
 
 async def fire(
@@ -138,8 +135,7 @@ async def fill_orbit_with_garbage(canvas, columns, delay):
             canvas, column=random.randint(0, columns),
             garbage_frame=random.choice(garbage_frames)
         ))
-        for _ in range(delay):
-            await asyncio.sleep(0)
+        await sleep(tics=delay)
 
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
@@ -156,6 +152,11 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         canvas.border()
+
+
+async def sleep(tics=1):
+    for _ in range(tics):
+        await asyncio.sleep(0)
 
 
 def get_frame_size(text):
