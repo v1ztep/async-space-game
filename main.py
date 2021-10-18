@@ -4,6 +4,7 @@ import random
 import time
 from itertools import cycle
 from pathlib import Path
+from physics import update_speed
 
 SPACE_KEY_CODE = 32
 LEFT_KEY_CODE = 260
@@ -103,9 +104,9 @@ async def fire(
 
 
 async def animate_spaceship(canvas, rows, columns):
-    rocket_speed = 5
     rocket_frames = (rocket_frame_1, rocket_frame_2)
     start_row, start_column = rows / 2, (columns / 2) - 2
+    row_speed = column_speed = 0
     for frame in cycle(rocket_frames):
         draw_frame(canvas, start_row, start_column, frame)
         await asyncio.sleep(0)
@@ -114,8 +115,12 @@ async def animate_spaceship(canvas, rows, columns):
         )
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
-        start_row += (rows_direction * rocket_speed)
-        start_column += (columns_direction * rocket_speed)
+
+        row_speed, column_speed = update_speed(
+            row_speed, column_speed, rows_direction, columns_direction
+        )
+        start_row, start_column = start_row + row_speed, \
+                                  start_column + column_speed
 
         frame_size_rows, frame_size_columns = get_frame_size(frame)
         if start_row < 1:
