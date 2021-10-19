@@ -8,6 +8,8 @@ from pathlib import Path
 from curses_tools import draw_frame
 from curses_tools import get_frame_size
 from curses_tools import read_controls
+from obstacles import Obstacle
+from obstacles import show_obstacles
 from physics import update_speed
 
 COROUTINES = []
@@ -116,27 +118,29 @@ async def animate_spaceship(canvas, rows, columns):
         start_row, start_column = start_row + row_speed, \
                                   start_column + column_speed
 
-        frame_size_rows, frame_size_columns = get_frame_size(frame)
+        frame_size_row, frame_size_column = get_frame_size(frame)
         if start_row < 1:
             start_row = 1
-        elif start_row > rows - frame_size_rows:
-            start_row = rows - frame_size_rows + 1
+        elif start_row > rows - frame_size_row:
+            start_row = rows - frame_size_row + 1
 
         if start_column < 1:
             start_column = 1
-        elif start_column > columns - frame_size_columns:
-            start_column = columns - frame_size_columns + 1
+        elif start_column > columns - frame_size_column:
+            start_column = columns - frame_size_column + 1
 
         if space_pressed:
+            global COROUTINES
             COROUTINES.append(fire(
                 canvas, start_row, start_column + 2, rows_speed=-1
             ))
 
 
-async def fill_orbit_with_garbage(canvas, columns, delay):
+async def fill_orbit_with_garbage(canvas, column, delay):
     while True:
+        global COROUTINES
         COROUTINES.append(fly_garbage(
-            canvas, column=random.randint(0, columns),
+            canvas, column=random.randint(0, column),
             garbage_frame=random.choice(garbage_frames)
         ))
         await sleep(tics=delay)
@@ -144,18 +148,24 @@ async def fill_orbit_with_garbage(canvas, columns, delay):
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     rows_number, columns_number = canvas.getmaxyx()
-
     column = max(column, 0)
     column = min(column, columns_number - 1)
-
     row = 0
+
+    global OBSTACLES, COROUTINES
+    frame_size_row, frame_size_column = get_frame_size(garbage_frame)
+    obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
+    OBSTACLES.append(obstacle)
+    COROUTINES.append(show_obstacles(canvas, OBSTACLES))
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
+        obstacle.row = row
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, garbage_frame, negative=True)
         row += speed
         canvas.border()
+    OBSTACLES.remove(obstacle)
 
 
 async def sleep(tics=1):
