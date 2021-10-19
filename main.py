@@ -33,10 +33,6 @@ def draw(canvas):
         ) for _ in range(200)
     ])
     COROUTINES.append(animate_spaceship(canvas, rows, columns))
-    COROUTINES.append(fire(
-        canvas, rows/2, columns/2,
-        rows_speed=-0.5, columns_speed=0
-    ))
     COROUTINES.append(
         fill_orbit_with_garbage(canvas, columns, garbage_delay)
     )
@@ -115,7 +111,6 @@ async def animate_spaceship(canvas, rows, columns):
         )
 
         rows_direction, columns_direction, space_pressed = read_controls(canvas)
-
         row_speed, column_speed = update_speed(
             row_speed, column_speed, rows_direction, columns_direction
         )
@@ -132,6 +127,11 @@ async def animate_spaceship(canvas, rows, columns):
             start_column = 1
         elif start_column > columns - frame_size_columns:
             start_column = columns - frame_size_columns + 1
+
+        if space_pressed:
+            COROUTINES.append(fire(
+                canvas, start_row, start_column + 2, rows_speed=-1
+            ))
 
 
 async def fill_orbit_with_garbage(canvas, columns, delay):
