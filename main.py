@@ -96,6 +96,10 @@ async def fire(
         canvas.addstr(round(row), round(column), symbol)
         await asyncio.sleep(0)
         canvas.addstr(round(row), round(column), ' ')
+        global OBSTACLES
+        for obstacle in OBSTACLES:
+            if obstacle.has_collision(row, column):
+                return
         row += rows_speed
         column += columns_speed
 
@@ -156,7 +160,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)
     obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
     OBSTACLES.append(obstacle)
-    COROUTINES.append(show_obstacles(canvas, OBSTACLES))
+    # COROUTINES.append(show_obstacles(canvas, OBSTACLES))
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
