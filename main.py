@@ -8,6 +8,7 @@ from pathlib import Path
 from curses_tools import draw_frame
 from curses_tools import get_frame_size
 from curses_tools import read_controls
+from explosion import explode
 from obstacles import Obstacle
 from obstacles import show_obstacles
 from physics import update_speed
@@ -91,7 +92,7 @@ async def fire(
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
 
-    curses.beep()
+    # curses.beep() #####################################################################
 
     while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
@@ -162,7 +163,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)
     obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
     OBSTACLES.append(obstacle)
-    COROUTINES.append(show_obstacles(canvas, OBSTACLES))
+    # COROUTINES.append(show_obstacles(canvas, OBSTACLES)) #########################
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
@@ -172,6 +173,9 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
         if obstacle in OBSTACLES_IN_LAST_COLLISIONS:
             OBSTACLES_IN_LAST_COLLISIONS.remove(obstacle)
             OBSTACLES.remove(obstacle)
+            await explode(
+                canvas, row + (frame_size_row/2), column + (frame_size_column/2)
+            )
             return
         row += speed
         canvas.border()
