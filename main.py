@@ -14,6 +14,7 @@ from physics import update_speed
 
 COROUTINES = []
 OBSTACLES = []
+OBSTACLES_IN_LAST_COLLISIONS = []
 
 
 def draw(canvas):
@@ -96,9 +97,10 @@ async def fire(
         canvas.addstr(round(row), round(column), symbol)
         await asyncio.sleep(0)
         canvas.addstr(round(row), round(column), ' ')
-        global OBSTACLES
+        global OBSTACLES, OBSTACLES_IN_LAST_COLLISIONS
         for obstacle in OBSTACLES:
             if obstacle.has_collision(row, column):
+                OBSTACLES_IN_LAST_COLLISIONS.append(obstacle)
                 return
         row += rows_speed
         column += columns_speed
@@ -156,17 +158,21 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     column = min(column, columns_number - 1)
     row = 0
 
-    global OBSTACLES, COROUTINES
+    global OBSTACLES, COROUTINES, OBSTACLES_IN_LAST_COLLISIONS
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)
     obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
     OBSTACLES.append(obstacle)
-    # COROUTINES.append(show_obstacles(canvas, OBSTACLES))
+    COROUTINES.append(show_obstacles(canvas, OBSTACLES))
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
         obstacle.row = row
         await asyncio.sleep(0)
         draw_frame(canvas, row, column, garbage_frame, negative=True)
+        if obstacle in OBSTACLES_IN_LAST_COLLISIONS:
+            OBSTACLES_IN_LAST_COLLISIONS.remove(obstacle)
+            OBSTACLES.remove(obstacle)
+            return
         row += speed
         canvas.border()
     OBSTACLES.remove(obstacle)
