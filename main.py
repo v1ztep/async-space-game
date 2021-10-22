@@ -10,7 +10,6 @@ from curses_tools import get_frame_size
 from curses_tools import read_controls
 from explosion import explode
 from obstacles import Obstacle
-from obstacles import show_obstacles
 from physics import update_speed
 
 COROUTINES = []
@@ -144,7 +143,10 @@ async def animate_spaceship(canvas, rows, columns):
 
         global OBSTACLES
         for obstacle in OBSTACLES:
-            if obstacle.has_collision(start_row, start_column, frame_size_row, frame_size_column):
+            if obstacle.has_collision(
+                    start_row, start_column,
+                    frame_size_row, frame_size_column
+            ):
                 await show_gameover(canvas, rows, columns)
 
 
@@ -174,11 +176,10 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     column = min(column, columns_number - 1)
     row = 0
 
-    global OBSTACLES, OBSTACLES_IN_LAST_COLLISIONS #,COROUTINES
+    global OBSTACLES, OBSTACLES_IN_LAST_COLLISIONS
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)
     obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
     OBSTACLES.append(obstacle)
-    # COROUTINES.append(show_obstacles(canvas, OBSTACLES)) #########################
 
     while row < rows_number:
         draw_frame(canvas, row, column, garbage_frame)
