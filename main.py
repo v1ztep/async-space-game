@@ -142,6 +142,21 @@ async def animate_spaceship(canvas, rows, columns):
                 canvas, start_row, start_column + 2, rows_speed=-1
             ))
 
+        global OBSTACLES
+        for obstacle in OBSTACLES:
+            if obstacle.has_collision(start_row, start_column, frame_size_row, frame_size_column):
+                await show_gameover(canvas, rows, columns)
+
+
+async def show_gameover(canvas, rows, columns):
+    frame_size_row, frame_size_column = get_frame_size(end_game_frame)
+    row, column = (rows / 2) - (frame_size_row / 2), \
+                  (columns / 2) - (frame_size_column / 2)
+    while True:
+        draw_frame(canvas, row, column, end_game_frame)
+        await asyncio.sleep(0)
+        draw_frame(canvas, row, column, end_game_frame)
+
 
 async def fill_orbit_with_garbage(canvas, column, delay):
     while True:
@@ -159,7 +174,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     column = min(column, columns_number - 1)
     row = 0
 
-    global OBSTACLES, COROUTINES, OBSTACLES_IN_LAST_COLLISIONS
+    global OBSTACLES, OBSTACLES_IN_LAST_COLLISIONS #,COROUTINES
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)
     obstacle = Obstacle(row, column, frame_size_row, frame_size_column)
     OBSTACLES.append(obstacle)
@@ -198,6 +213,9 @@ if __name__ == '__main__':
     for path in frames_garbage_paths:
         with open(path, encoding='utf-8') as trash_frame:
             garbage_frames.append(trash_frame.read())
+
+    with open('frames/game_over.txt', encoding='utf-8') as file:
+        end_game_frame = file.read()
 
     curses.update_lines_cols()
     curses.wrapper(draw)
