@@ -9,16 +9,17 @@ from curses_tools import draw_frame
 from curses_tools import get_frame_size
 from curses_tools import read_controls
 from explosion import explode
+from game_scenario import get_garbage_delay_tics
 from obstacles import Obstacle
 from physics import update_speed
 
 COROUTINES = []
 OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
+YEAR = 1957
 
 
 def draw(canvas):
-    garbage_delay = 7
     curses.curs_set(False)
     canvas.border()
     canvas.nodelay(True)
@@ -35,9 +36,7 @@ def draw(canvas):
         ) for _ in range(200)
     ])
     COROUTINES.append(animate_spaceship(canvas, rows, columns))
-    COROUTINES.append(
-        fill_orbit_with_garbage(canvas, columns, garbage_delay)
-    )
+    COROUTINES.append(fill_orbit_with_garbage(canvas, columns))
 
     while True:
         for coroutine in COROUTINES.copy():
@@ -160,14 +159,18 @@ async def show_gameover(canvas, rows, columns):
         draw_frame(canvas, row, column, end_game_frame)
 
 
-async def fill_orbit_with_garbage(canvas, column, delay):
+async def fill_orbit_with_garbage(canvas, column):
     while True:
-        global COROUTINES
-        COROUTINES.append(fly_garbage(
-            canvas, column=random.randint(0, column),
-            garbage_frame=random.choice(garbage_frames)
-        ))
-        await sleep(tics=delay)
+        global COROUTINES, YEAR
+        delay = get_garbage_delay_tics(YEAR)
+        if delay:
+            COROUTINES.append(fly_garbage(
+                canvas, column=random.randint(0, column),
+                garbage_frame=random.choice(garbage_frames)
+            ))
+            await sleep(tics=delay)
+        else:
+            await asyncio.sleep(0)
 
 
 async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
