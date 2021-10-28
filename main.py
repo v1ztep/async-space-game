@@ -18,7 +18,7 @@ COROUTINES = []
 OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
 YEAR = 1957
-PHRASES = PHRASES
+EVENTS = PHRASES
 
 
 def draw(canvas):
@@ -54,13 +54,13 @@ def draw(canvas):
 
 
 async def game_pace(canvas):
-    global YEAR, PHRASES
+    global YEAR, EVENTS
     year_window = canvas.derwin(3, 6, 0, 0)
     while True:
         year_window.border()
         year_window.addstr(1, 1, str(YEAR), curses.A_DIM)
-        if YEAR in PHRASES:
-            canvas.addstr(1, 7, PHRASES[YEAR], curses.A_DIM)
+        if YEAR in EVENTS:
+            canvas.addstr(1, 7, EVENTS[YEAR], curses.A_DIM)
         year_window.refresh()
         await sleep(tics=15)
         YEAR += 1
