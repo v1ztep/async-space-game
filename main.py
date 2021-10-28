@@ -12,11 +12,13 @@ from explosion import explode
 from game_scenario import get_garbage_delay_tics
 from obstacles import Obstacle
 from physics import update_speed
+from game_scenario import PHRASES
 
 COROUTINES = []
 OBSTACLES = []
 OBSTACLES_IN_LAST_COLLISIONS = []
 YEAR = 1957
+PHRASES = PHRASES
 
 
 def draw(canvas):
@@ -37,6 +39,7 @@ def draw(canvas):
     ])
     COROUTINES.append(animate_spaceship(canvas, rows, columns))
     COROUTINES.append(fill_orbit_with_garbage(canvas, columns))
+    COROUTINES.append(game_pace(canvas))
 
     while True:
         for coroutine in COROUTINES.copy():
@@ -48,6 +51,19 @@ def draw(canvas):
             break
         canvas.refresh()
         time.sleep(0.1)
+
+
+async def game_pace(canvas):
+    global YEAR, PHRASES
+    year_window = canvas.derwin(3, 6, 0, 0)
+    while True:
+        year_window.border()
+        year_window.addstr(1, 1, str(YEAR), curses.A_DIM)
+        if YEAR in PHRASES:
+            canvas.addstr(1, 7, PHRASES[YEAR], curses.A_DIM)
+        year_window.refresh()
+        await sleep(tics=15)
+        YEAR += 1
 
 
 async def blink(canvas, row, column, symbol='*'):
@@ -134,8 +150,8 @@ async def animate_spaceship(canvas, rows, columns):
         elif start_column > columns - frame_size_column:
             start_column = columns - frame_size_column + 1
 
-        if space_pressed:
-            global COROUTINES
+        global YEAR, COROUTINES
+        if space_pressed and YEAR >= 2020:
             COROUTINES.append(fire(
                 canvas, start_row, start_column + 2, rows_speed=-1
             ))
@@ -177,7 +193,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     rows_number, columns_number = canvas.getmaxyx()
     column = max(column, 0)
     column = min(column, columns_number - 1)
-    row = 0
+    row = 2
 
     global OBSTACLES, OBSTACLES_IN_LAST_COLLISIONS
     frame_size_row, frame_size_column = get_frame_size(garbage_frame)

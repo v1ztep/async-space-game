@@ -7,7 +7,7 @@ PHRASES = {
     1981: "Flight of the Shuttle Columbia",
     1998: 'ISS start building',
     2011: 'Messenger launch to Mercury',
-    2020: "Take the plasma gun! Shoot the garbage!",
+    2020: "Take the plasma gun! Shoot the garbage! --- PRESS SPACE ---",
 }
 
 
@@ -17,12 +17,12 @@ def get_garbage_delay_tics(year):
     elif year < 1969:
         return 20
     elif year < 1981:
-        return 14
+        return 15
     elif year < 1995:
-        return 10
+        return 12
     elif year < 2010:
-        return 8
+        return 10
     elif year < 2020:
-        return 6
+        return 8
     else:
-        return 2
+        return 6
