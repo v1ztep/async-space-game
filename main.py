@@ -106,7 +106,7 @@ async def fire(
     rows, columns = canvas.getmaxyx()
     max_row, max_column = rows - 1, columns - 1
 
-    # curses.beep() #####################################################################
+    curses.beep()
 
     while 1 < row < max_row and 1 < column < max_column:
         canvas.addstr(round(row), round(column), symbol)
